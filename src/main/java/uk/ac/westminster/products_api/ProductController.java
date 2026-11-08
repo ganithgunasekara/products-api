@@ -1,33 +1,32 @@
 package uk.ac.westminster.products_api;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/products")
 public class ProductController {
 
-    @GetMapping("/{id}")
-    public Product getById(@PathVariable Long id) {
-        return new Product(id, "Laptop", 999.99);
-    }
+    private final ProductService productService;
 
-    @Autowired
-    private ProductService productService;
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
     @GetMapping("/products")
     public List<Product> getAllProducts() {
         return productService.getAllProducts();
     }
 
-    public Product getProductById(@PathVariable Long id) {
-        return productService.getProductById(id).orElse(null);
+    @GetMapping("/products/{id}")
+    public Optional<Product> getProductById(@PathVariable Long id) {
+        return productService.getProductById(id);
     }
 
+    // Temporary fix from Activity 3: Jackson cannot instantiate an abstract Product,
+    // so we accept a concrete DigitalProduct for now.
     @PostMapping("/products")
-    public Product addProduct(@RequestBody Product product) {
+    public Product addProduct(@RequestBody DigitalProduct product) {
         return productService.addProduct(product);
     }
 
@@ -36,9 +35,9 @@ public class ProductController {
         productService.deleteProduct(id);
     }
 
-
-    @GetMapping("/products/search")
-    public List<Product> search(@RequestParam String name) {
-        return productService.findByName(name);
+    @GetMapping("/products/summaries")
+    public List<String> getSummaries() {
+        return productService.getAllSummaries();
     }
+
 }
